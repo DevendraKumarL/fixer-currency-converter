@@ -1,5 +1,6 @@
 package com.example.devendra.Fixer;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -38,8 +39,11 @@ public class MainActivity extends AppCompatActivity {
     public Button convertButton;
     public Button reverseButton;
     public Button resetButton;
+    public Button refreshButton;
 
     public ProgressBar loadingProgressBar;
+    public ProgressDialog progressDialog;
+    public ProgressBar materialProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +53,9 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         loadingProgressBar = findViewById(R.id.loading);
+        progressDialog = new ProgressDialog(this);
+        materialProgressBar = findViewById(R.id.materialLoading);
+
         usdEditText = findViewById(R.id.usd);
         inrEditText = findViewById(R.id.inr);
 
@@ -73,6 +80,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 resetRates();
+            }
+        });
+
+        refreshButton = findViewById(R.id.refresh_btn);
+        refreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getCurrencyData();
             }
         });
 
@@ -112,14 +127,42 @@ public class MainActivity extends AppCompatActivity {
         convertionUSDINR();
     }
 
-    public void getCurrencyData() {
-        // show progress bar
-        loadingProgressBar.setVisibility(View.VISIBLE);
-
-        // disable input usd field, convert button and reverse button
+    private void initUI() {
         convertButton.setEnabled(false);
         reverseButton.setEnabled(false);
-        usdEditText.setFocusable(false);
+        resetButton.setEnabled(false);
+
+        usdToInrFlag = true;
+
+        usdEditText.setText(String.valueOf(1));
+        usdEditText.setEnabled(false);
+        usdEditText.setFocusableInTouchMode(false);
+
+        inrEditText.setText("");
+        inrEditText.setEnabled(false);
+        inrEditText.setFocusableInTouchMode(false);
+    }
+
+    public void enableUIElementsPostSuccess() {
+        convertButton.setEnabled(true);
+        reverseButton.setEnabled(true);
+        resetButton.setEnabled(true);
+        refreshButton.setEnabled(true);
+
+        usdEditText.setFocusableInTouchMode(true);
+        usdEditText.setEnabled(true);
+    }
+
+    public void getCurrencyData() {
+        // show progress bar
+//        loadingProgressBar.setVisibility(View.VISIBLE);
+        progressDialog.setMessage("Fetching currency rates...");
+        progressDialog.show();
+//        materialProgressBar.setVisibility(View.VISIBLE);
+
+        // initialize UI stuff
+        initUI();
+        refreshButton.setEnabled(false);
 
         // TODO: check network connectivity
 
@@ -127,12 +170,12 @@ public class MainActivity extends AppCompatActivity {
                 new GenericCallback<GenericResponse<CurrencyData>>() {
             @Override
             public void success(GenericResponse<CurrencyData> response) {
-                loadingProgressBar.setVisibility(View.INVISIBLE);
+//                loadingProgressBar.setVisibility(View.INVISIBLE);
+                progressDialog.dismiss();
+//                materialProgressBar.setVisibility(View.INVISIBLE);
 
                 // enable back these elements
-                convertButton.setEnabled(true);
-                reverseButton.setEnabled(true);
-                usdEditText.setFocusableInTouchMode(true);
+                enableUIElementsPostSuccess();
 
                 Log.i("CurrencyRateCallSuccess", "API Response successful!");
 
@@ -145,6 +188,12 @@ public class MainActivity extends AppCompatActivity {
                 loadingProgressBar.setVisibility(View.INVISIBLE);
 
                 Log.e("CurrencyRateCallFailure", "API Response failed!");
+
+                // reset ui elements
+                initUI();
+
+                // and then only enable refresh button
+                refreshButton.setEnabled(true);
 
                 showErrorMessage(response);
             }
@@ -238,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
         Log.e("errorMessage", response.getErrorMessage());
         Log.e("errorCode", "" + response.getResponseCode());
         Snackbar.make(getWindow().getDecorView().getRootView(),
-                "Could not get server response...", Snackbar.LENGTH_LONG).show();
+                "Please check your internet connection\n Try again using Refresh button...", Snackbar.LENGTH_LONG).show();
     }
 
     @Override

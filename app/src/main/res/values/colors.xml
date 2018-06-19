@@ -5,4 +5,10 @@
     <color name="colorAccent">#FF4081</color>
     <color name="bluegrey_300">#90A4AE</color>
     <color name="bluegrey_100">#F5F5F5</color>
+    <color name="white">#FFFFFF</color>
+    <color name="blue400">#5C6BC0</color>
+    <color name="blue600">#3949AB</color>
+    <color name="orange600">#F4511E</color>
+    <color name="grey300">#E0E0E0</color>
+    <color name="grey500">#9E9E9E</color>
 </resources>

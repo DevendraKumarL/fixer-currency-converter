@@ -30,4 +30,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
+    <ProgressBar
+        style="@style/Widget.AppCompat.ProgressBar"
+        android:theme="@style/MaterialProgressBar"
+        android:layout_gravity="center"
+        android:visibility="invisible"
+        android:id="@+id/materialLoading"
+        android:progressBackgroundTint="@color/orange600"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
 </android.support.design.widget.CoordinatorLayout>
